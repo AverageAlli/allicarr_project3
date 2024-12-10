@@ -1,15 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
 }
 
 model Ingredient {
@@ -28,8 +23,9 @@ model Tag {
 }
 
 model CookingMethod {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  recipes Recipe[] @relation("RecipeCookingMethod") // This establishes the relation
 }
 
 model CookingStep {
@@ -38,10 +34,12 @@ model CookingStep {
 }
 
 model Recipe {
-  id          Int          @id @default(autoincrement())
-  name        String
-  imageUrl    String?
-  likes       Int          @default(0)
-  ingredients Ingredient[]
-  tags        Tag[]        @relation("RecipeTags")
+  id              Int            @id @default(autoincrement())
+  name            String
+  imageUrl        String?
+  likes           Int            @default(0)
+  ingredients     Ingredient[]
+  tags            Tag[]          @relation("RecipeTags")
+  cookingMethod   CookingMethod? @relation("RecipeCookingMethod", fields: [cookingMethodId], references: [id]) // Added the @relation directive here
+  cookingMethodId Int?
 }

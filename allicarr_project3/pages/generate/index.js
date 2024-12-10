@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router"; // Next.js useRouter hook
+import { useRouter } from 'next/router'; // Import useRouter
+import styles from '../../styles/GenerateRecipePage.module.css'; // Import CSS Module
 
 const GenerateRecipePage = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -14,6 +15,7 @@ const GenerateRecipePage = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); // To manage button state
+  const [loading, setLoading] = useState(true); // Loading state
   const router = useRouter();
 
   useEffect(() => {
@@ -36,6 +38,8 @@ const GenerateRecipePage = () => {
         setCookingMethods(methodsData);
       } catch (error) {
         setErrorMessage(error.message);
+      } finally {
+        setLoading(false);  // Set loading to false when data is fetched
       }
     };
 
@@ -78,7 +82,7 @@ const GenerateRecipePage = () => {
 
     try {
       const response = await fetch("/api/create-recipe", {
-        method: "POST",
+        method: "POST", // Ensure POST method is used here
         headers: {
           "Content-Type": "application/json",
         },
@@ -100,78 +104,88 @@ const GenerateRecipePage = () => {
   };
 
   return (
-    <div>
+    <div className={styles.formContainer}>
       <h1>Create a New Recipe</h1>
-      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Recipe Name:</label>
-          <input
-            type="text"
-            value={recipeName}
-            onChange={(e) => setRecipeName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Recipe Image URL:</label>
-          <input
-            type="text"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Ingredients:</label>
-          <select
-            multiple
-            value={selectedIngredients}
-            onChange={(e) =>
-              setSelectedIngredients([...e.target.selectedOptions].map(option => option.value))
-            }
-          >
-            {ingredients.map((ingredient) => (
-              <option key={ingredient.id} value={ingredient.id}>
-                {ingredient.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Tags:</label>
-          <select
-            multiple
-            value={selectedTags}
-            onChange={(e) =>
-              setSelectedTags([...e.target.selectedOptions].map(option => option.value))
-            }
-          >
-            {tags.map((tag) => (
-              <option key={tag.id} value={tag.id}>
-                {tag.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Cooking Method:</label>
-          <select
-            value={selectedCookingMethod}
-            onChange={(e) => setSelectedCookingMethod(e.target.value)}
-            required
-          >
-            <option value="">Select a method</option>
-            {cookingMethods.map((method) => (
-              <option key={method.id} value={method.id}>
-                {method.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create Recipe"}
-        </button>
-      </form>
+      {errorMessage && <p className={styles.error}>{errorMessage}</p>}
+      
+      {loading ? (
+        <p>Loading...</p>  // Show loading message while fetching data
+      ) : (
+        <form onSubmit={handleSubmit} className={styles.recipeForm}>
+          <div className={styles.formGroup}>
+            <label>Recipe Name:</label>
+            <input
+              type="text"
+              value={recipeName}
+              onChange={(e) => setRecipeName(e.target.value)}
+              required
+              className={styles.inputField}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label>Recipe Image URL:</label>
+            <input
+              type="text"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              className={styles.inputField}
+            />
+          </div>
+          <div className={styles.formGroup}>
+            <label>Ingredients:</label>
+            <select
+              multiple
+              value={selectedIngredients}
+              onChange={(e) =>
+                setSelectedIngredients([...e.target.selectedOptions].map(option => option.value))
+              }
+              className={styles.selectField}
+            >
+              {ingredients.map((ingredient) => (
+                <option key={ingredient.id} value={ingredient.id}>
+                  {ingredient.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.formGroup}>
+            <label>Tags:</label>
+            <select
+              multiple
+              value={selectedTags}
+              onChange={(e) =>
+                setSelectedTags([...e.target.selectedOptions].map(option => option.value))
+              }
+              className={styles.selectField}
+            >
+              {tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>
+                  {tag.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.formGroup}>
+            <label>Cooking Method:</label>
+            <select
+              value={selectedCookingMethod}
+              onChange={(e) => setSelectedCookingMethod(e.target.value)}
+              required
+              className={styles.selectField}
+            >
+              <option value="">Select a method</option>
+              {cookingMethods.map((method) => (
+                <option key={method.id} value={method.id}>
+                  {method.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" disabled={isSubmitting} className={styles.submitButton}>
+            {isSubmitting ? "Creating..." : "Create Recipe"}
+          </button>
+        </form>
+      )}
     </div>
   );
 };
