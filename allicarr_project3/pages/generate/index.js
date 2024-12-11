@@ -183,7 +183,7 @@ const GenerateRecipePage = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-2 px-4 bg-blue-500 text-white rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`w-full py-2 px-4 text-white bg-green-700 rounded-md shadow-sm hover:bg-green-500focus:outline-none ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             {isSubmitting ? "Creating..." : "Create Recipe"}
           </button>
