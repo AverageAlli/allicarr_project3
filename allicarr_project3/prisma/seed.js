@@ -3,81 +3,75 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create or upsert Cooking Methods
+  // Reset database by deleting all records
+  await prisma.$transaction([
+    prisma.recipe.deleteMany(),
+    prisma.ingredient.deleteMany(),
+    prisma.tag.deleteMany(),
+    prisma.cookingMethod.deleteMany(),
+  ]);
+  console.log('Database reset completed.');
+
+  // Seed Cooking Methods
   const cookingMethods = ['Frying', 'Grilling', 'Baking'];
-  for (const name of cookingMethods) {
-    await prisma.cookingMethod.upsert({
-      where: { name },
-      update: {}, // No update needed, you can leave this empty
-      create: { name },
-    });
-  }
+  await Promise.all(
+    cookingMethods.map((name) =>
+      prisma.cookingMethod.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      })
+    )
+  );
   console.log(`${cookingMethods.length} cooking methods upserted.`);
 
-  // Create or upsert Tags
+  // Seed Tags
   const tags = ['Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Spicy'];
-  for (const name of tags) {
-    await prisma.tag.upsert({
-      where: { name },
-      update: {}, // No update needed, you can leave this empty
-      create: { name },
-    });
-  }
+  await Promise.all(
+    tags.map((name) =>
+      prisma.tag.upsert({
+        where: { name },
+        update: {},
+        create: { name },
+      })
+    )
+  );
   console.log(`${tags.length} tags upserted.`);
 
-  // Create Ingredients
-  const ingredients = await prisma.ingredient.createMany({
-    data: [
-      { name: 'Tomato' },
-      { name: 'Chicken' },
-      { name: 'Flour' },
-      { name: 'Cheese' },
-    ],
+  // Seed Ingredients
+  const ingredients = ['Tomato', 'Chicken', 'Flour', 'Cheese'];
+  await prisma.ingredient.createMany({
+    data: ingredients.map((name) => ({ name })),
   });
-  console.log(`${ingredients.count} ingredients created.`);
+  console.log(`${ingredients.length} ingredients created.`);
 
-  // Create Recipes
-  const recipes = await prisma.recipe.createMany({
-    data: [
-      { name: 'Grilled Chicken', imageUrl: 'http://example.com/grilled-chicken.jpg' },
-      { name: 'Vegetarian Pizza', imageUrl: 'http://example.com/vegetarian-pizza.jpg' },
-    ],
+  // Seed Recipes
+  const recipes = [
+    { name: 'Grilled Chicken', imageUrl: 'http://example.com/grilled-chicken.jpg' },
+    { name: 'Vegetarian Pizza', imageUrl: 'http://example.com/vegetarian-pizza.jpg' },
+  ];
+  await prisma.recipe.createMany({
+    data: recipes,
   });
-  console.log(`${recipes.count} recipes created.`);
+  console.log(`${recipes.length} recipes created.`);
 
-  // Create Relations (Link Tags and Ingredients to Recipes)
-  const recipe1 = await prisma.recipe.update({
-    where: { name: 'Grilled Chicken' },
+  // Link Recipes to Tags and Ingredients
+  const grilledChicken = await prisma.recipe.findFirst({ where: { name: 'Grilled Chicken' } });
+  const vegetarianPizza = await prisma.recipe.findFirst({ where: { name: 'Vegetarian Pizza' } });
+
+  await prisma.recipe.update({
+    where: { id: grilledChicken.id },
     data: {
-      ingredients: {
-        connect: [
-          { id: 2 }, // Chicken
-        ],
-      },
-      tags: {
-        connect: [
-          { name: 'Gluten-Free' },
-          { name: 'Spicy' },
-        ],
-      },
+      ingredients: { connect: [{ name: 'Chicken' }] },
+      tags: { connect: [{ name: 'Gluten-Free' }, { name: 'Spicy' }] },
     },
   });
 
-  const recipe2 = await prisma.recipe.update({
-    where: { name: 'Vegetarian Pizza' },
+  await prisma.recipe.update({
+    where: { id: vegetarianPizza.id },
     data: {
-      ingredients: {
-        connect: [
-          { id: 1 }, // Tomato
-          { id: 3 }, // Flour
-          { id: 4 }, // Cheese
-        ],
-      },
-      tags: {
-        connect: [
-          { name: 'Vegetarian' },
-        ],
-      },
+      ingredients: { connect: [{ name: 'Tomato' }, { name: 'Flour' }, { name: 'Cheese' }] },
+      tags: { connect: [{ name: 'Vegetarian' }] },
     },
   });
 

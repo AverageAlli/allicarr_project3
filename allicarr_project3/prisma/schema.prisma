@@ -9,7 +9,7 @@ datasource db {
 
 model Ingredient {
   id       Int     @id @default(autoincrement())
-  name     String
+  name     String  @unique
   tags     Tag[]   @relation("IngredientTags")
   Recipe   Recipe? @relation(fields: [recipeId], references: [id])
   recipeId Int?
