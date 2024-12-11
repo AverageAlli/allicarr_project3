@@ -13,7 +13,7 @@ async function main() {
   console.log('Database reset completed.');
 
   // Seed Cooking Methods
-  const cookingMethods = ['Frying', 'Grilling', 'Baking'];
+  const cookingMethods = ['Frying', 'Grilling', 'Baking', 'Boiling','Sauteeing'];
   await Promise.all(
     cookingMethods.map((name) =>
       prisma.cookingMethod.upsert({
@@ -26,7 +26,7 @@ async function main() {
   console.log(`${cookingMethods.length} cooking methods upserted.`);
 
   // Seed Tags
-  const tags = ['Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Spicy'];
+  const tags = ['Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Spicy', 'Beef'];
   await Promise.all(
     tags.map((name) =>
       prisma.tag.upsert({
@@ -39,7 +39,7 @@ async function main() {
   console.log(`${tags.length} tags upserted.`);
 
   // Seed Ingredients
-  const ingredients = ['Tomato', 'Chicken', 'Flour', 'Cheese'];
+  const ingredients = ['Tomato', 'Chicken', 'Flour', 'Cheese','Alien Goo', 'Stardust','Sugar'];
   await prisma.ingredient.createMany({
     data: ingredients.map((name) => ({ name })),
   });

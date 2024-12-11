@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from 'next/router'; // Import useRouter
-import styles from '../../styles/GenerateRecipePage.module.css'; // Import CSS Module
+import { useRouter } from 'next/router';
 
 const GenerateRecipePage = () => {
   const [ingredients, setIngredients] = useState([]);
@@ -14,8 +13,8 @@ const GenerateRecipePage = () => {
   const [recipeName, setRecipeName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // To manage button state
-  const [loading, setLoading] = useState(true); // Loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -39,7 +38,7 @@ const GenerateRecipePage = () => {
       } catch (error) {
         setErrorMessage(error.message);
       } finally {
-        setLoading(false);  // Set loading to false when data is fetched
+        setLoading(false);
       }
     };
 
@@ -48,12 +47,11 @@ const GenerateRecipePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Disable button when submitting
+    setIsSubmitting(true);
 
-    // Validate form input
     if (!recipeName || !selectedCookingMethod) {
       setErrorMessage("Recipe name and cooking method are required.");
-      setIsSubmitting(false); // Re-enable button on failure
+      setIsSubmitting(false);
       return;
     }
 
@@ -69,20 +67,17 @@ const GenerateRecipePage = () => {
       return;
     }
 
-    // Prepare the data to send to the backend
     const newRecipe = {
       name: recipeName,
       imageUrl: imageUrl,
-      ingredients: selectedIngredients,  // Array of ingredient IDs
-      tags: selectedTags,                // Array of tag IDs
-      cookingMethod: selectedCookingMethod, // ID of the selected cooking method
+      ingredients: selectedIngredients,
+      tags: selectedTags,
+      cookingMethod: selectedCookingMethod,
     };
-
-    console.log("New Recipe Data: ", newRecipe); // Log the data to be sent
 
     try {
       const response = await fetch("/api/create-recipe", {
-        method: "POST", // Ensure POST method is used here
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -90,56 +85,57 @@ const GenerateRecipePage = () => {
       });
 
       if (response.ok) {
-        // Redirect to another page after successful creation
         router.push("/recipes");
       } else {
         setErrorMessage("Error creating recipe.");
       }
     } catch (error) {
-      console.error("Error submitting the form:", error); // Log the error
+      console.error("Error submitting the form:", error);
       setErrorMessage("Error submitting the form. Please try again.");
     } finally {
-      setIsSubmitting(false); // Re-enable button after submission attempt
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className={styles.formContainer}>
-      <h1>Create a New Recipe</h1>
-      {errorMessage && <p className={styles.error}>{errorMessage}</p>}
-      
+    <div className="p-6 max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Create a New Recipe</h1>
+      {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
+
       {loading ? (
-        <p>Loading...</p>  // Show loading message while fetching data
+        <p>Loading...</p>
       ) : (
-        <form onSubmit={handleSubmit} className={styles.recipeForm}>
-          <div className={styles.formGroup}>
-            <label>Recipe Name:</label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="block">Recipe Name:</label>
             <input
               type="text"
               value={recipeName}
               onChange={(e) => setRecipeName(e.target.value)}
               required
-              className={styles.inputField}
+              className="w-full p-2 border border-gray-300 rounded"
             />
           </div>
-          <div className={styles.formGroup}>
-            <label>Recipe Image URL:</label>
+
+          <div className="space-y-2">
+            <label className="block">Recipe Image URL:</label>
             <input
               type="text"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className={styles.inputField}
+              className="w-full p-2 border border-gray-300 rounded"
             />
           </div>
-          <div className={styles.formGroup}>
-            <label>Ingredients:</label>
+
+          <div className="space-y-2">
+            <label className="block">Ingredients:</label>
             <select
               multiple
               value={selectedIngredients}
               onChange={(e) =>
                 setSelectedIngredients([...e.target.selectedOptions].map(option => option.value))
               }
-              className={styles.selectField}
+              className="w-full p-2 border border-gray-300 rounded"
             >
               {ingredients.map((ingredient) => (
                 <option key={ingredient.id} value={ingredient.id}>
@@ -148,15 +144,16 @@ const GenerateRecipePage = () => {
               ))}
             </select>
           </div>
-          <div className={styles.formGroup}>
-            <label>Tags:</label>
+
+          <div className="space-y-2">
+            <label className="block">Tags:</label>
             <select
               multiple
               value={selectedTags}
               onChange={(e) =>
                 setSelectedTags([...e.target.selectedOptions].map(option => option.value))
               }
-              className={styles.selectField}
+              className="w-full p-2 border border-gray-300 rounded"
             >
               {tags.map((tag) => (
                 <option key={tag.id} value={tag.id}>
@@ -165,13 +162,14 @@ const GenerateRecipePage = () => {
               ))}
             </select>
           </div>
-          <div className={styles.formGroup}>
-            <label>Cooking Method:</label>
+
+          <div className="space-y-2">
+            <label className="block">Cooking Method:</label>
             <select
               value={selectedCookingMethod}
               onChange={(e) => setSelectedCookingMethod(e.target.value)}
               required
-              className={styles.selectField}
+              className="w-full p-2 border border-gray-300 rounded"
             >
               <option value="">Select a method</option>
               {cookingMethods.map((method) => (
@@ -181,7 +179,12 @@ const GenerateRecipePage = () => {
               ))}
             </select>
           </div>
-          <button type="submit" disabled={isSubmitting} className={styles.submitButton}>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full py-2 px-4 bg-blue-500 text-white rounded ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
             {isSubmitting ? "Creating..." : "Create Recipe"}
           </button>
         </form>
